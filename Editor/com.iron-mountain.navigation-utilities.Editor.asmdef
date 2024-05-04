@@ -1,0 +1,19 @@
+{
+    "name": "com.iron-mountain.navigation-utilities.Editor",
+    "rootNamespace": "IronMountain.NavigationUtilities",
+    "references": [
+        "GUID:8c4dd21966739024fbd72155091d199e",
+        "GUID:671f847fcb13c454f9832e25ee410230"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
