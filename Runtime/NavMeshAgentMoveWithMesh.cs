@@ -7,7 +7,15 @@ namespace IronMountain.NavigationUtilities
     [RequireComponent(typeof(NavMeshAgent))]
     public class NavMeshAgentMoveWithMesh : MonoBehaviour
     {
+        private enum UpdateType
+        {
+            Normal,
+            Fixed,
+            Late
+        }
+
         [SerializeField] private NavMeshAgent navMeshAgent;
+        [SerializeField] private UpdateType updateType;
 
         private Object _navMesh;
         private Transform _navMeshTransform;
@@ -39,6 +47,21 @@ namespace IronMountain.NavigationUtilities
         private void Awake() => OnValidate();
 
         private void Update()
+        {
+            if (updateType == UpdateType.Normal) RunUpdate();
+        }
+        
+        private void FixedUpdate()
+        {
+            if (updateType == UpdateType.Fixed) RunUpdate();
+        }
+        
+        private void LateUpdate()
+        {
+            if (updateType == UpdateType.Late) RunUpdate();
+        }
+
+        private void RunUpdate()
         {
             NavMesh = navMeshAgent ? navMeshAgent.navMeshOwner : null;
 
