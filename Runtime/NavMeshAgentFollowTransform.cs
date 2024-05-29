@@ -14,10 +14,15 @@ namespace IronMountain.NavigationUtilities
         
         [SerializeField] public NavMeshAgent navMeshAgent;
         [SerializeField] public Transform target;
+        [Space]
+        [SerializeField] public float minimumDistance;
+        [SerializeField] public float idealDistance;
+        [SerializeField] public float maximumDistance;
+        [Space]
         [SerializeField] public RotationType rotationType = RotationType.LookAtTarget;
         [SerializeField] [Range(0, 12)] public float rotationSpeed = 6;
-        [SerializeField] [Range(0, 180)] public float idealAngleRange = 6;
-        [SerializeField] [Range(0, 180)] public float maximumAngleRange = 6;
+        [SerializeField] [Range(0, 180)] public float idealAngleRange;
+        [SerializeField] [Range(0, 180)] public float maximumAngleRange;
 
         private bool _isRotating;
         
@@ -28,6 +33,9 @@ namespace IronMountain.NavigationUtilities
 
         private void OnValidate()
         {
+            if (minimumDistance < 0) minimumDistance = 0;
+            if (maximumDistance < minimumDistance) maximumDistance = minimumDistance;
+            idealDistance = Mathf.Clamp(idealDistance, minimumDistance, maximumDistance);
             maximumAngleRange = Mathf.Clamp(maximumAngleRange, 0, 180);
             idealAngleRange = Mathf.Clamp(idealAngleRange, 0, maximumAngleRange);
             if (!navMeshAgent) navMeshAgent = GetComponent<NavMeshAgent>();
@@ -44,10 +52,13 @@ namespace IronMountain.NavigationUtilities
                 navMeshAgent.ResetPath();
                 return;
             }
+            
+            Vector3 followVector = target.position - navMeshAgent.transform.position;
+            float distance = followVector.magnitude;
 
-            if (Vector3.Distance(transform.position, target.position) <= navMeshAgent.stoppingDistance)
+            if (minimumDistance < distance && distance < maximumDistance)
             {
-                navMeshAgent.ResetPath();
+                if (navMeshAgent.hasPath) navMeshAgent.ResetPath();
 
                 Vector3 currentDirection = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
                 Vector3 idealDirection = rotationType switch
@@ -67,9 +78,10 @@ namespace IronMountain.NavigationUtilities
                     transform.rotation = Quaternion.Slerp(transform.rotation, idealRotation, Time.deltaTime * rotationSpeed);
                 }
             }
-            else if (navMeshAgent.destination != target.position)
+            else
             {
-                navMeshAgent.SetDestination(target.position);
+                Vector3 destination = navMeshAgent.transform.position + followVector.normalized * idealDistance;
+                if (navMeshAgent.destination != destination) navMeshAgent.SetDestination(destination);
             }
         }
     }
